@@ -1,86 +1,78 @@
 import { KeyboardEvent, useRef, useState } from 'react';
 
 import { KeyState } from '../../../shared/types/keys';
-import { MODIFIER_KEYS_MAP } from '../../../shared/const/modifiers';
 import { getShortcutString, isValidShortcut } from '../../../utils/helpers';
+import { UseShortcutInput } from '../shortcut-input.types';
 
-export const useShortcutInput = (value,modifiers, onChange) => {
+export const useShortcutInput = ({ value, onChange, modifiers } : UseShortcutInput) => {
 	const [isFocused, setIsFocused] = useState<boolean>(false);
 	const [currentKeys, setCurrentKeys] = useState<KeyState>({
-		modifiersKeys: []
+		modifiersKeys: new Set([]),
+		nonModifierKey: new Set([]),
 	});
 	const inputRef = useRef<HTMLDivElement | null>(null);
 
 	const handleFocus = () => {
 		setIsFocused(true);
 		setCurrentKeys({
-			modifiersKeys: [],
+			modifiersKeys: new Set([]),
+			nonModifierKey: new Set([]),
 		});
 	};
 
 	const handleBlur = () => {
 		setIsFocused(false);
 		setCurrentKeys({
-			modifiersKeys: [],
+			modifiersKeys: new Set([]),
+			nonModifierKey: new Set([]),
 		});
 	};
 
 	const handleKeyDown = (e: KeyboardEvent) => {
 		e.preventDefault();
 
+		if (e.repeat) {
+			return;
+		}
+
 		const key = e.code === 'Space' ? 'Space' : e.key;
-		const newModifierKey = MODIFIER_KEYS_MAP[key];
+		const newModifierKey = modifiers.includes(key) ? key : null;
 
 		if (newModifierKey) {
 			setCurrentKeys(prev => ({
 				...prev,
-				modifiersKeys: [...prev.modifiersKeys, newModifierKey]
+				modifiersKeys: new Set([...prev.modifiersKeys, newModifierKey])
 			}));
 
-		} else if (currentKeys.nonModifierKey !== key) {
+		} else {
 			setCurrentKeys(prev => ({
 				...prev,
-				nonModifierKey: key,
+				nonModifierKey: new Set([...prev.nonModifierKey, key])
 			}));
 		}
 	};
 
 	const handleKeyUp = (e: KeyboardEvent) => {
-		const key = e.code === ' ' ? 'Space' : e.key;
-		const modifierKey = MODIFIER_KEYS_MAP[key];
+		e.preventDefault();
 
-		if (modifierKey) {
-			setCurrentKeys(prev => ({
-				...prev,
-				modifiersKeys: [...prev.modifiersKeys.filter(modifier => modifier !== modifierKey)]
-			}));
-		} else {
+		if (isValidShortcut(currentKeys)) {
+
 			const newShortcut = getShortcutString({
 				...currentKeys,
 			});
 
-			if (isValidShortcut(newShortcut, modifiers)) {
-				onChange(newShortcut);
-			}
-
-			setCurrentKeys({
-				modifiersKeys: [],
-			});
+			onChange(newShortcut);
 		}
+
+		setCurrentKeys({
+			modifiersKeys: new Set([]),
+			nonModifierKey: new Set([]),
+		});
 	};
 
 	const renderContent = () => {
-		if (!value) {
-			const shortcut = getShortcutString(currentKeys);
-
-			if (!shortcut) {
-				return <span className="placeholder">Press Shortcut</span>
-			}
-
-			return <span className="placeholder">{shortcut}</span>
-		}
-
-		return value;
+		const shortcut = value || getShortcutString(currentKeys);
+		return <span className={value || "placeholder"}>{shortcut || 'Press Shortcut'}</span>;
 	};
 
 	return {

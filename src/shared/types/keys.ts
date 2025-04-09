@@ -1,4 +1,4 @@
 export type KeyState = {
-	modifiersKeys: string[];
-	nonModifierKey?: string;
+	modifiersKeys: Set<string>;
+	nonModifierKey: Set<string>;
 };

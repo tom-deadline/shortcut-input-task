@@ -3,3 +3,9 @@ export interface ShortcutInputProps {
 	modifiers: string[];
 	onChange: (value: string) => void;
 }
+
+export interface UseShortcutInput {
+	value: string | null;
+	modifiers: string[];
+	onChange: (value: string) => void;
+}

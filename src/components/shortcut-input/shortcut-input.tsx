@@ -4,7 +4,7 @@ import type { ShortcutInputProps } from './shortcut-input.types';
 import { useShortcutInput } from './lib/use-shortcut-input';
 import './shortcut-input.styles.css';
 
-const ShortcutInput: FC<ShortcutInputProps> = ({value, modifiers, onChange}) => {
+const ShortcutInput: FC<ShortcutInputProps> = ({value, onChange, modifiers}) => {
 	const {
 		isFocused,
 		inputRef,
@@ -13,7 +13,7 @@ const ShortcutInput: FC<ShortcutInputProps> = ({value, modifiers, onChange}) => 
 		handleKeyDown,
 		handleKeyUp,
 		renderContent
-	} = useShortcutInput(value, modifiers, onChange);
+	} = useShortcutInput({value, onChange, modifiers});
 
 	useEffect(() => {
 		if (isFocused && inputRef.current) {
