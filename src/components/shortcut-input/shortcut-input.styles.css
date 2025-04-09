@@ -1,0 +1,22 @@
+.shortcut-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 200px;
+    min-height: 20px;
+    display: inline-block;
+    outline: none;
+    background: white;
+    cursor: pointer;
+    color: #000;
+}
+
+.shortcut-input.focused {
+    border-color: #4d90fe;
+    box-shadow: 0 0 0 1px #4d90fe;
+}
+
+.placeholder {
+    color: #999;
+    font-style: italic;
+}
